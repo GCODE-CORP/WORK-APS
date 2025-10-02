@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ล็อคอินเข้าทำงาน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="login-style.css">
+</head>
+<body class="gradient-bg text-white">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div id="login-box" class="glass-effect rounded-2xl p-8 md:p-12 w-full max-w-md text-center">
+            <div class="floating inline-block mb-6">
+                <div class="inline-flex items-center justify-center w-24 h-24 glass-effect rounded-full">
+                    <span class="text-5xl">🔒</span>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold mb-4 glow-text">เข้าสู่ระบบ DinoBot</h1>
+            <p class="text-white/70 mb-8">กรุณากรอกรหัสผ่านเพื่อเข้าใช้งาน</p>
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="passwordInput" class="sr-only">รหัสผ่าน</label>
+                    <input type="password" id="passwordInput" placeholder="กรอกรหัสผ่านของคุณ" class="w-full bg-white/10 p-4 rounded-lg text-center text-lg focus:ring-2 focus:ring-purple-400 focus:outline-none transition">
+                </div>
+                <div id="errorMessage" class="text-red-400 font-semibold h-6"></div>
+                <div>
+                    <button type="submit" class="w-full login-btn text-white py-4 rounded-lg font-bold text-lg btn-hover transition">
+                        เข้าสู่ระบบ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="login.js"></script>
+</body>
+</html>
