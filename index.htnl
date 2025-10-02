@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบลงเวลาทำงาน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="main-style.css">
+</head>
+<body class="gradient-bg text-white">
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2 w-full max-w-xs"></div>
+    
+    <div id="recordActionMenu" class="hidden absolute z-40 glass-effect rounded-lg p-2 shadow-xl text-sm space-y-1">
+        <button id="menuEditBtn" class="w-full text-left px-3 py-1.5 hover:bg-white/20 rounded">✏️ แก้ไข</button>
+        <button id="menuDeleteBtn" class="w-full text-left px-3 py-1.5 hover:bg-white/20 rounded text-red-400">🗑️ ลบ</button>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <div class="text-center mb-8 relative">
+             <div class="floating inline-block">
+                <div class="inline-flex items-center justify-center w-20 h-20 glass-effect rounded-full mb-6">
+                    <span class="text-4xl">📄</span>
+                </div>
+            </div>
+            <h1 class="text-5xl font-bold mb-4 glow-text">ระบบลงเวลาทำงาน</h1>
+            <div id="currentTime" class="text-2xl text-white/90 font-mono"></div>
+            <button id="settingsBtn" class="absolute top-0 right-0 glass-effect p-3 rounded-full btn-hover">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            </button>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-6 mb-8">
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass-effect rounded-xl p-6">
+                     <h3 class="text-xl font-bold mb-4">📑 ลงชื่อเข้า-ออกงาน</h3>
+                    <div class="mb-4">
+                        <label class="text-white/80 text-sm font-medium">1. เลือกกะทำงาน:</label>
+                        <div class="grid grid-cols-3 gap-2 mt-2">
+                            <button id="shiftMorning" class="shift-btn btn-hover bg-white/10 text-white/80 py-3 rounded-xl" data-shift="Morning">🌞 เช้า</button>
+                            <button id="shiftAfternoon" class="shift-btn btn-hover bg-white/10 text-white/80 py-3 rounded-xl" data-shift="Afternoon">🌤️ บ่าย</button>
+                            <button id="shiftNight" class="shift-btn btn-hover bg-white/10 text-white/80 py-3 rounded-xl" data-shift="Night">🌙 ดึก</button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="text-white/80 text-sm font-medium">2. เลือกจำนวนแรง:</label>
+                        <div class="mt-2 flex items-center justify-center bg-white/10 p-3 rounded-xl">
+                            <span class="mr-3 text-white/80">1 แรง</span>
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                <input type="checkbox" name="toggle" id="doublePayToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="doublePayToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                            <span class="ml-3 font-bold text-green-300">2 แรง (x2)</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button id="checkInBtn" class="btn-hover bg-green-500 text-white py-3 rounded-xl font-bold text-lg disabled:opacity-50">เข้างาน</button>
+                        <button id="checkOutBtn" class="btn-hover bg-red-500 text-white py-3 rounded-xl font-bold text-lg disabled:opacity-50">ออกงาน</button>
+                    </div>
+                    <div class="mt-4 border-t border-white/20 pt-4">
+                        <button id="paidDayOffBtn" class="w-full btn-hover bg-blue-500 text-white py-3 rounded-xl font-bold text-lg">💜 บันทึกวันหยุด (ได้เงิน)</button>
+                    </div>
+                    <div id="statusDisplay" class="mt-6 p-4 glass-effect rounded-xl hidden text-center"></div>
+                </div>
+                <div class="glass-effect rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">📊 สรุปข้อมูลวิคปัจจุบัน</h3>
+                    <div id="wigAnalysis" class="space-y-3"></div>
+                </div>
+            </div>
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass-effect rounded-xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                         <h3 class="text-2xl font-bold glow-text">📅 ปฏิทินการทำงาน</h3>
+                         <div class="flex items-center gap-2">
+                            <button id="prevMonth" class="btn-hover glass-effect text-white px-3 py-1 rounded-lg">◀</button>
+                            <div id="currentMonth" class="font-bold text-lg px-4 py-1 glass-effect rounded-lg"></div>
+                            <button id="nextMonth" class="btn-hover glass-effect text-white px-3 py-1 rounded-lg">▶</button>
+                        </div>
+                    </div>
+                    <div id="calendar" class="grid grid-cols-7 gap-1 mb-4"></div>
+                    <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm justify-center">
+                        <span class="flex items-center gap-2"><div class="w-3 h-3 work-day rounded-full"></div><span>ทำงาน</span></span>
+                        <span class="flex items-center gap-2"><div class="w-3 h-3 paid-holiday-day rounded-full"></div><span>หยุด(ได้เงิน)</span></span>
+                        <span class="flex items-center gap-2"><div class="w-3 h-3 no-work-day rounded-full"></div><span>ไม่ได้ทำ</span></span>
+                        <span class="flex items-center gap-2"><div class="w-3 h-3 today rounded-full animate-pulse"></div><span>วันนี้</span></span>
+                    </div>
+                </div>
+                <div class="glass-effect rounded-xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                         <h3 class="text-xl font-bold">📝 บันทึกการทำงาน</h3>
+                         <button id="clearDataBtn" class="bg-red-600/50 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm">🗑️ ล้างข้อมูล</button>
+                    </div>
+                    <div id="recordsList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center opacity-0">
+        <div class="modal-overlay absolute w-full h-full bg-black opacity-60"></div>
+        <div class="modal-content glass-effect text-white rounded-lg p-6 w-full max-w-md mx-auto transform -translate-y-10">
+            <div class="flex justify-between items-center pb-3">
+                <p class="text-2xl font-bold">⚙️ ตั้งค่า</p>
+                <button class="modal-close-btn cursor-pointer z-50 text-3xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <h4 class="text-lg font-semibold mt-4">อัตราค่าจ้าง (บาท)</h4>
+                <div>
+                    <label for="rateMorning">🌞 กะเช้า:</label>
+                    <input type="number" id="rateMorning" class="w-full bg-white/10 p-2 rounded mt-1">
+                </div>
+                <div>
+                    <label for="rateAfternoon">🌤️ กะบ่าย:</label>
+                    <input type="number" id="rateAfternoon" class="w-full bg-white/10 p-2 rounded mt-1">
+                </div>
+                <div>
+                    <label for="rateNight">🌙 กะดึก:</label>
+                    <input type="number" id="rateNight" class="w-full bg-white/10 p-2 rounded mt-1">
+                </div>
+                 <div>
+                    <label for="ratePaidHoliday">💜 วันหยุด (ได้เงิน):</label>
+                    <input type="number" id="ratePaidHoliday" class="w-full bg-white/10 p-2 rounded mt-1">
+                </div>
+            </div>
+            <div class="flex justify-end pt-6 space-x-4">
+                <button id="resetSettingsBtn" class="bg-yellow-500 text-white py-2 px-4 rounded btn-hover">รีเซ็ต</button>
+                <button id="saveSettingsBtn" class="bg-green-500 text-white py-2 px-4 rounded btn-hover">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center opacity-0">
+        <div class="modal-overlay absolute w-full h-full bg-black opacity-60"></div>
+        <div class="modal-content glass-effect text-white rounded-lg p-6 w-full max-w-lg mx-auto transform -translate-y-10">
+            <div class="flex justify-between items-center pb-3">
+                <p class="text-2xl font-bold">✏️ แก้ไขบันทึก</p>
+                <button class="modal-close-btn cursor-pointer z-50 text-3xl">&times;</button>
+            </div>
+            <input type="hidden" id="editRecordId">
+            <div class="space-y-4">
+                 <div>
+                    <label>ประเภท:</label>
+                    <select id="editShiftType" class="w-full bg-white/10 p-2 rounded mt-1">
+                        <option value="Morning">🌞 กะเช้า</option>
+                        <option value="Afternoon">🌤️ กะบ่าย</option>
+                        <option value="Night">🌙 กะดึก</option>
+                        <option value="PaidHoliday">💜 วันหยุด (ได้เงิน)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>เวลาเข้า:</label>
+                        <input type="datetime-local" id="editCheckIn" class="w-full bg-white/10 p-2 rounded mt-1 text-white [color-scheme:dark]">
+                    </div>
+                     <div>
+                        <label>เวลาออก:</label>
+                        <input type="datetime-local" id="editCheckOut" class="w-full bg-white/10 p-2 rounded mt-1 text-white [color-scheme:dark]">
+                    </div>
+                </div>
+                <div>
+                     <label class="flex items-center space-x-3 mt-2">
+                        <input type="checkbox" id="editIsDoublePay" class="form-checkbox h-5 w-5 bg-white/20 text-green-500 rounded border-none focus:ring-0">
+                        <span class="font-bold text-green-300">ทำงาน 2 แรง (x2)</span>
+                    </label>
+                </div>
+                 <div>
+                    <label>โน้ต:</label>
+                    <input type="text" id="editNote" class="w-full bg-white/10 p-2 rounded mt-1" placeholder="ไม่บังคับ...">
+                </div>
+            </div>
+            <div class="flex justify-end pt-6">
+                <button id="saveEditBtn" class="bg-green-500 text-white py-2 px-4 rounded btn-hover">บันทึกการแก้ไข</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="modal pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center opacity-0">
+        <div class="modal-overlay absolute w-full h-full bg-black opacity-60"></div>
+        <div class="modal-content glass-effect text-white rounded-lg p-6 w-full max-w-sm mx-auto transform -translate-y-10 text-center">
+            <div class="flex justify-between items-center pb-3">
+                <p class="text-2xl font-bold">🔐 ยืนยันตัวตน</p>
+                <button class="modal-close-btn cursor-pointer z-50 text-3xl">&times;</button>
+            </div>
+            <p class="text-white/80 my-4">เพื่อความปลอดภัย, กรุณากรอกรหัสผ่านเพื่อดำเนินการต่อ</p>
+            <div class="mt-4">
+                <input type="password" id="passwordClearDataInput" placeholder="กรอกรหัสผ่าน..." class="w-full bg-white/10 p-3 rounded-lg text-center text-lg focus:ring-2 focus:ring-purple-400 focus:outline-none transition">
+            </div>
+            <div class="flex justify-center pt-6 space-x-4">
+                <button id="cancelClearDataBtn" class="modal-close-btn bg-red-600/80 text-white py-2 px-6 rounded btn-hover">ยกเลิก</button>
+                <button id="confirmClearDataBtn" class="bg-green-500 text-white py-2 px-6 rounded btn-hover">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
